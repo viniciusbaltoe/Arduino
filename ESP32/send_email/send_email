@@ -1,0 +1,81 @@
+/* Mais informações em:
+ *  https://microcontrollerslab.com/esp32-send-emails-through-smtp-server-arduino-ide/ 
+*/
+
+#include <Arduino.h>
+#include <WiFi.h>
+#include <ESP_Mail_Client.h> /* https://github.com/mobizt/ESP-Mail-Client */
+
+#define WIFI_SSID "wifi_id"
+#define WIFI_PASSWORD "password"
+
+#define SMTP_server "smtp.gmail.com"
+#define SMTP_Port 465
+
+
+#define sender_email "esp32_email@gmail.com"
+#define sender_password "esp32_password"
+
+#define Recipient_email "client_email@gmail.com"
+
+
+SMTPSession smtp;
+
+// Input port
+int signal = 34; //ADC
+
+void setup(){
+  Serial.begin(115200);
+
+  pinMode (signal, INPUT); // Declarando o pino 32 como input.
+
+  Serial.println();
+  Serial.print("Connecting...");
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED){
+    Serial.print(".");
+    delay(200);
+  }
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.println();
+  smtp.debug(1);
+
+  ESP_Mail_Session session;
+
+  session.server.host_name = SMTP_server ;
+  session.server.port = SMTP_Port;
+  session.login.email = sender_email;
+  session.login.password = sender_password;
+  session.login.user_domain = "";
+
+  /* Declare the message class */
+  SMTP_Message message;
+  
+  message.sender.name = "ESP32";
+  message.sender.email = sender_email;
+  message.subject = "ESP32 Testing Email";
+  message.addRecipient("Microcontrollerslab",Recipient_email);
+ 
+  //Send simple text message
+  String textMsg = "Foi detectado um movimento estranho em sua residência.";
+  message.text.content = textMsg.c_str();
+  message.text.charSet = "us-ascii";
+  message.text.transfer_encoding = Content_Transfer_Encoding::enc_7bit;
+
+}
+
+void loop(){
+  port_value = analogRead(signal)
+  if (port_value < 1)
+  {
+    if (!smtp.connect(&session))
+      return;
+      
+    if (!MailClient.sendMail(&smtp, &message))
+      Serial.println("Error sending Email, " + smtp.errorReason());
+  }
+  delay(500);
+}
