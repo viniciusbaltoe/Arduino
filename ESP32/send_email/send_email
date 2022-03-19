@@ -69,7 +69,7 @@ void setup(){
 
 void loop(){
   port_value = analogRead(signal)
-  if (port_value < 1)
+  if (port_value < 1000) //Min = 0, Max = 4095 (0 e 3,3V)
   {
     if (!smtp.connect(&session))
       return;
